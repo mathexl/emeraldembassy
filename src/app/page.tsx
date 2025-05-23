@@ -25,9 +25,13 @@ const EventSlide = styled.div`
     background-color: rgba(0,0,0,.4);
     color: white;
     border: 2px #fff solid;
-    padding: 16px;
+    padding: 8px;
     margin: 8px;
     cursor: pointer;
+
+    @media (max-width: 480px) {
+      padding: 4px;
+    }
   }
 
 
