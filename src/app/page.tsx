@@ -172,7 +172,7 @@ export default function Home() {
               {events.length > 0 &&
                 !ev.private
                 && (ev.inviteUrl ?
-                  <Link href={ev?.inviteUrl || ""}><button >RSVP</button></Link> : <button style={{ opacity: .5 }}>Invite Not Available Yet</button>)}
+                  <Link href={ev?.inviteUrl || ""}><button >RSVP</button></Link> : <button style={{ opacity: .5 }}>Invite Coming</button>)}
 
 
             </div>
