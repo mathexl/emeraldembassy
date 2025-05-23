@@ -42,8 +42,22 @@ const Content = styled.div`
   border: 1px solid #FFE5BD;
   z-index: 3;
   h1 {
-  margin-bottom:0px;
-}
+    margin-bottom: 0px;
+    font-size: 6.5em;
+    line-height: 1em;
+    text-align: center;
+  }
+
+  @media (max-width: 768px) {
+    h1 {
+      font-size: 3em;
+    }
+
+    p {
+      display:none;
+    }
+  }
+
   h4 {
     margin-top:0px;
     margin-bottom: 32px;
@@ -135,7 +149,7 @@ export default function Home() {
               zIndex: 10,
             }}
           >
-            <h1 style={{ fontSize: "6.5em", lineHeight: "1em", textAlign: "center" }}>
+            <h1 >
               {events.length > 0 && ev?.title}
             </h1>
             <h4>
