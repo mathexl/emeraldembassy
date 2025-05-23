@@ -8,6 +8,8 @@ import { useEffect, useState } from "react";
 import { createClient } from '@sanity/client'
 import imageUrlBuilder from "@sanity/image-url";
 import Link from "next/link";
+import Head from "next/head";
+import { NextSeo } from "next-seo";
 
 const EventSlide = styled.div`
   position: fixed; 
@@ -82,145 +84,150 @@ export default function Home() {
   const ev = (events[chosenEvent] as any);
 
   return (
-    <EventSlide
-      onTouchStart={(e) => {
-        const touchStartY = e.touches[0].clientY;
-        const handleTouchMove = (ev: TouchEvent) => {
-          const touchEndY = ev.changedTouches[0].clientY;
-          const swipeDistance = touchStartY - touchEndY;
-          if (swipeDistance > 50) {
+    <>
+      <Head><title></title></Head>
+      <NextSeo
+        title={ev?.title + " | The Emerald Embassy"}
+      />
+      <EventSlide
+        onTouchStart={(e) => {
+          const touchStartY = e.touches[0].clientY;
+          const handleTouchMove = (ev: TouchEvent) => {
+            const touchEndY = ev.changedTouches[0].clientY;
+            const swipeDistance = touchStartY - touchEndY;
+            if (swipeDistance > 50) {
+              setChosenEvent((prev) => (prev + 1) % events.length);
+            } else if (swipeDistance < -50) {
+              setChosenEvent((prev) => (prev - 1 + events.length) % events.length);
+            }
+            window.removeEventListener('touchmove', handleTouchMove);
+          };
+          window.addEventListener('touchmove', handleTouchMove);
+        }}
+        onKeyDown={(e) => {
+          if (e.key === "Tab") {
             setChosenEvent((prev) => (prev + 1) % events.length);
-          } else if (swipeDistance < -50) {
-            setChosenEvent((prev) => (prev - 1 + events.length) % events.length);
+            e.preventDefault();
           }
-          window.removeEventListener('touchmove', handleTouchMove);
-        };
-        window.addEventListener('touchmove', handleTouchMove);
-      }}
-      onKeyDown={(e) => {
-        if (e.key === "Tab") {
-          setChosenEvent((prev) => (prev + 1) % events.length);
-          e.preventDefault();
-        }
-      }}
-      tabIndex={0}
-    >
-      <Content>
-        <div
-          style={{
-            position: "absolute",
-            top: "0",
-            left: "0",
-            right: "0",
-            bottom: "0",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            flexDirection: "column",
-            zIndex: 10,
-          }}
-        >
-          <h1 style={{ fontSize: "6.5em", textAlign: "center" }}>
-            {events.length > 0 && ev?.title}
-          </h1>
-          <div style={{ display: "flex", justifyContent: "center" }}>
-            <Link href={ev?.videoTrailerUrl || ""} target="_blank">
-              <button
+        }}
+        tabIndex={0}
+      >
+        <Content>
+          <div
+            style={{
+              position: "absolute",
+              top: "0",
+              left: "0",
+              right: "0",
+              bottom: "0",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              flexDirection: "column",
+              zIndex: 10,
+            }}
+          >
+            <h1 style={{ fontSize: "6.5em", textAlign: "center" }}>
+              {events.length > 0 && ev?.title}
+            </h1>
+            <div style={{ display: "flex", justifyContent: "center" }}>
+              <Link href={ev?.videoTrailerUrl || ""} target="_blank">
+                <button
 
-              >
-                Watch Trailer
-              </button>
-            </Link>
+                >
+                  Watch Trailer
+                </button>
+              </Link>
 
-            {events.length > 0 &&
-              !ev.private
-              && ev.inviteUrl
-              && <Link href={ev?.inviteUrl || ""}><button >RSVP</button></Link>}
+              {events.length > 0 &&
+                !ev.private
+                && ev.inviteUrl
+                && <Link href={ev?.inviteUrl || ""}><button >RSVP</button></Link>}
 
+
+            </div>
+            <p
+              style={{
+                position: "absolute",
+                bottom: "16px",
+                left: "0",
+                right: "0",
+                textAlign: "center",
+              }}
+            >
+              {events.length > 0 && ev?.private && <>Due to food constraints, this event is smaller and invite-only. The invite list is cycled with time.</>}
+            </p>
 
           </div>
-          <p
+          <div
+            style={{
+              position: "absolute",
+              top: "0",
+              left: "0",
+              display: "inline-block",
+              backgroundColor: "rgba(255, 229, 189, 0.5)",
+              border: "1px solid #FFE5BD",
+              padding: "8px",
+            }}
+          >
+            {logo}
+          </div>
+          <div
             style={{
               position: "absolute",
               bottom: "16px",
-              left: "0",
-              right: "0",
-              textAlign: "center",
+              left: "16px",
+              display: "flex",
+              flexDirection: "column",
+              backgroundColor: "rgba(255, 229, 189, 0.5)",
+              border: "1px solid #FFD700",
+              padding: "8px",
+              zIndex: 100
             }}
           >
-            {events.length > 0 && ev?.private && <>Due to food constraints, this event is smaller and invite-only. The invite list is cycled with time.</>}
-          </p>
+            {events.map((event, index) => (
+              <div
+                key={index}
+                onClick={() => setChosenEvent(index)}
+                style={{
+                  width: "8px",
+                  height: "8px",
+                  borderRadius: "50%",
+                  backgroundColor: chosenEvent === index ? "#FFD700" : "#fff",
+                  marginBottom: "4px",
+                  cursor: "pointer",
+                }}
+              />
+            ))}
+          </div>
 
-        </div>
+        </Content>
         <div
           style={{
             position: "absolute",
-            top: "0",
-            left: "0",
-            display: "inline-block",
-            backgroundColor: "rgba(255, 229, 189, 0.5)",
-            border: "1px solid #FFE5BD",
-            padding: "8px",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            zIndex: 2,
+            backgroundColor: "rgba(0, 0, 0, 0.6)",
           }}
-        >
-          {logo}
-        </div>
-        <div
+        />
+        <video
+          src={events.length > 0 && ev?.videoPreviewUrl}
+          autoPlay
+          muted
+          loop
           style={{
             position: "absolute",
-            bottom: "16px",
-            left: "16px",
-            display: "flex",
-            flexDirection: "column",
-            backgroundColor: "rgba(255, 229, 189, 0.5)",
-            border: "1px solid #FFD700",
-            padding: "8px",
-            zIndex: 100
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
           }}
-        >
-          {events.map((event, index) => (
-            <div
-              key={index}
-              onClick={() => setChosenEvent(index)}
-              style={{
-                width: "8px",
-                height: "8px",
-                borderRadius: "50%",
-                backgroundColor: chosenEvent === index ? "#FFD700" : "#fff",
-                marginBottom: "4px",
-                cursor: "pointer",
-              }}
-            />
-          ))}
-        </div>
-
-      </Content>
-      <div
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          width: "100%",
-          height: "100%",
-          zIndex: 2,
-          backgroundColor: "rgba(0, 0, 0, 0.6)",
-        }}
-      />
-      <video
-        src={events.length > 0 && ev?.videoPreviewUrl}
-        autoPlay
-        muted
-        loop
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          width: "100%",
-          height: "100%",
-          objectFit: "cover",
-        }}
-      />
-    </EventSlide>
+        />
+      </EventSlide></>
   );
 }
 
