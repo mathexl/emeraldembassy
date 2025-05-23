@@ -109,7 +109,7 @@ export default function Home() {
       });
   }, []);
 
-  const ev = (events[chosenEvent] as any);
+  const ev = (events[chosenEvent % events.length] as any);
 
   useEffect(() => {
     const handleTouchStart = (e: TouchEvent) => {
