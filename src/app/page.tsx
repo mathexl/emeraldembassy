@@ -1,6 +1,5 @@
 "use client"
 
-import Image from "next/image";
 import styled from "styled-components";
 import { useEffect, useState } from "react";
 import { createClient } from '@sanity/client'
