@@ -254,7 +254,7 @@ export default function Home() {
                   width: "8px",
                   height: "8px",
                   borderRadius: "50%",
-                  backgroundColor: chosenEvent === index ? "#FFD700" : "#fff",
+                  backgroundColor: chosenEvent % events.length === index ? "#FFD700" : "#fff",
                   marginBottom: "4px",
                   cursor: "pointer",
                 }}
