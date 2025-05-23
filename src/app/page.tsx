@@ -8,31 +8,74 @@ import { useEffect, useState } from "react";
 import { createClient } from '@sanity/client'
 import imageUrlBuilder from "@sanity/image-url";
 import Link from "next/link";
-import Head from "next/head";
-import { NextSeo } from "next-seo";
 
-const EventSlide = styled.div`
-  position: fixed; 
-  top: 0; 
-  left: 0;  
-  right: 0; 
-  bottom: 0;
-  font-family: Ibarra Real Nova;
-  background: white;
-  color:white;
+const Loader = styled.div`
+  z-index: 1100005;
+  background: #0A302C;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position:fixed;
+  width: 100%;
+  height: 100%;
 
-  button {
-    background-color: rgba(0,0,0,.4);
-    color: white;
-    border: 2px #fff solid;
-    padding: 8px;
-    margin: 8px;
-    cursor: pointer;
+  animation: fadeOut 1s ease-in-out forwards;
+  animation-delay: 2.5s;
 
-    @media (max-width: 480px) {
-      padding: 6px;
+  @keyframes fadeOut {
+    0% {
+      opacity: 1;
+    }
+    99% {
+      opacity: 0;
+    }
+    100%{
+      display: none;
     }
   }
+
+  svg {
+  animation: spin 3s linear infinite;
+  width: 60px;
+  }
+
+  @keyframes spin {
+      from {
+      transform: rotate(0deg);
+    }
+      to {
+      transform: rotate(360deg);
+    }
+  }
+`
+
+
+const EventSlide = styled.div`
+position: fixed;
+top: 0;
+left: 0;
+right: 0;
+bottom: 0;
+font-family: Ibarra Real Nova;
+background: white;
+color: white;
+* {
+  position: relative;
+}
+
+
+  button {
+  background-color: rgba(0, 0, 0, .4);
+  color: white;
+  border: 2px #fff solid;
+  padding: 8px;
+  margin: 8px;
+  cursor: pointer;
+
+  @media(max-width: 480px) {
+    padding: 6px;
+  }
+}
 
 
 `
@@ -45,6 +88,7 @@ const Content = styled.div`
   bottom: 32px;
   border: 1px solid #FFE5BD;
   z-index: 3;
+
   h1 {
     margin-bottom: 0px;
     font-size: 6.5em;
@@ -52,20 +96,20 @@ const Content = styled.div`
     text-align: center;
   }
 
-  @media (max-width: 768px) {
+@media(max-width: 768px) {
     h1 {
-      font-size: 3em;
-    }
+    font-size: 3em;
+  }
 
     p {
-      display:none;
-    }
+    display: none;
   }
+}
 
   h4 {
-    margin-top:16px;
-    margin-bottom: 32px;
-  }
+  margin-top: 16px;
+  margin-bottom: 32px;
+}
 `
 
 
@@ -94,15 +138,15 @@ export default function Home() {
   useEffect(() => {
     client
       .fetch(
-        `*[_type == "event"]{
-          title,
-          videoTrailerUrl,
-          videoPreviewUrl,
-          private,
-          rank, 
-          inviteUrl,
-          eventDate
-        }`
+        `* [_type == "event"]{
+  title,
+    videoTrailerUrl,
+    videoPreviewUrl,
+    private,
+    rank,
+    inviteUrl,
+    eventDate
+} `
       )
       .then((data) => {
         setEvents(data.toSorted((a: any, b: any) => a.rank < b.rank ? -1 : 1));
@@ -144,7 +188,11 @@ export default function Home() {
 
   return (
     <>
-
+      <Loader>
+        <svg width="354" height="239" viewBox="0 0 354 239" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M17.0137 119.059L17.0137 173.484L49.9248 158.204V119.059H66.9375L66.9375 159.892L83.1357 174.74H274.216L288.847 160.109V119.059H305.859V157.914L336.987 170.596V119.059L354 119.059V183.246C354 185.558 353.06 187.771 351.395 189.374L303.254 235.731C301.669 237.258 299.554 238.111 297.354 238.111L58.4307 238.111C56.4002 238.111 54.4362 237.385 52.8945 236.063L2.9707 193.271L2.62695 192.959C0.954354 191.359 3.15289e-05 189.14 0 186.812L0 119.059H17.0137ZM0 51.2988C6.48894e-05 48.971 0.954383 46.7522 2.62695 45.1523L2.9707 44.8398L52.8945 2.04785C54.4362 0.72652 56.4002 4.88923e-05 58.4307 0L297.354 0C299.554 0.000167671 301.669 0.853698 303.254 2.37988L351.395 48.7373C353.06 50.3407 354 52.5536 354 54.8652V119.053L336.987 119.053V67.5156L305.859 80.1973V119.053H288.847V78.002L274.216 63.3711L83.1357 63.3711L66.9375 78.2197V119.053H49.9248V79.9072L17.0137 64.627L17.0137 119.053H0L0 51.2988ZM300.365 214.895L330.174 186.19L299.374 173.643L287.807 185.21L300.365 214.895ZM299.374 64.4688L330.174 51.9209L300.365 23.2168L287.807 52.9014L299.374 64.4688ZM284.517 221.098L272.103 191.753H85.2695L71.7256 221.098L284.517 221.098ZM85.2695 46.3584L272.103 46.3584L284.517 17.0137L71.7256 17.0137L85.2695 46.3584ZM55.4229 215.822L69.501 185.32L56.8652 173.739L24.083 188.96L55.4229 215.822ZM56.8652 64.3721L69.501 52.791L55.4229 22.2891L24.083 49.1514L56.8652 64.3721Z" fill="#FFE5BD" />
+        </svg>
+      </Loader>
       <EventSlide
         onKeyDown={(e) => {
           if (e.key === "Tab") {
