@@ -85,10 +85,8 @@ export default function Home() {
 
   return (
     <>
-      <Head><title></title></Head>
-      <NextSeo
-        title={ev?.title + " | The Emerald Embassy"}
-      />
+      <Head><meta property="og:image" content="./og-image.png" />
+      </Head>
       <EventSlide
         onTouchStart={(e) => {
           const touchStartY = e.touches[0].clientY;
@@ -141,8 +139,8 @@ export default function Home() {
 
               {events.length > 0 &&
                 !ev.private
-                && ev.inviteUrl
-                && <Link href={ev?.inviteUrl || ""}><button >RSVP</button></Link>}
+                && (ev.inviteUrl ?
+                  <Link href={ev?.inviteUrl || ""}><button >RSVP</button></Link> : <button style={{ opacity: .5 }}>Invite Not Available Yet</button>)}
 
 
             </div>
