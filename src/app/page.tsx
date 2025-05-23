@@ -113,7 +113,7 @@ export default function Home() {
 
   return (
     <>
-      <Head><meta property="og:image" content="./og-image.png" />
+      <Head><meta property="og:image" content="./ogimage.png" />
       </Head>
       <EventSlide
         onTouchStart={(e) => {
