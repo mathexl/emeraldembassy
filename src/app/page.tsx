@@ -144,8 +144,7 @@ export default function Home() {
 
   return (
     <>
-      <Head><meta property="og:image" content="./ogimage.png" />
-      </Head>
+
       <EventSlide
         onKeyDown={(e) => {
           if (e.key === "Tab") {
