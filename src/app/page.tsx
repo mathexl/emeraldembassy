@@ -111,26 +111,32 @@ export default function Home() {
 
   const ev = (events[chosenEvent] as any);
 
-      document.body.addEventListener("touchstart", (e) => {
-        const touchStartY = e.touches[0].clientY;
-        const handleTouchMove = (ev: TouchEvent) => {
-          const touchEndY = ev.changedTouches[0].clientY;
-          const swipeDistance = touchStartY - touchEndY;
-          if (swipeDistance > 50) {
-            setChosenEvent((prev) => prev + 1);
-          } else if (swipeDistance < -50) {
-            setChosenEvent((prev) => prev - 1);
-          }
-        };
-        document.body.addEventListener("touchmove", handleTouchMove);
-        document.body.addEventListener(
-          "touchend",
-          () => {
-            document.body.removeEventListener("touchmove", handleTouchMove);
-          },
-          { once: true }
-        );
-      });
+  useEffect(() => {
+    const handleTouchStart = (e: TouchEvent) => {
+      const touchStartY = e.touches[0].clientY;
+      const handleTouchMove = (ev: TouchEvent) => {
+        const touchEndY = ev.changedTouches[0].clientY;
+        const swipeDistance = touchStartY - touchEndY;
+        if (swipeDistance > 50) {
+          setChosenEvent((prev) => prev + 1);
+        } else if (swipeDistance < -50) {
+          setChosenEvent((prev) => prev - 1);
+        }
+      };
+      document.body.addEventListener("touchmove", handleTouchMove);
+      document.body.addEventListener(
+        "touchend",
+        () => {
+          document.body.removeEventListener("touchmove", handleTouchMove);
+        },
+        { once: true }
+      );
+    };
+    document.body.addEventListener("touchstart", handleTouchStart);
+    return () => {
+      document.body.removeEventListener("touchstart", handleTouchStart);
+    };
+  }, []);
 
   return (
     <>
