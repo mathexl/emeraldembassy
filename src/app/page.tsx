@@ -120,7 +120,7 @@ export default function Home() {
         if (swipeDistance > 50) {
           setChosenEvent((prev) => prev + 1);
         } else if (swipeDistance < -50) {
-          setChosenEvent((prev) => prev - 1);
+          setChosenEvent((prev) => Math.max(prev - 1, 0));
         }
       };
       document.body.addEventListener("touchmove", handleTouchMove);
