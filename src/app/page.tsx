@@ -30,7 +30,7 @@ const EventSlide = styled.div`
     cursor: pointer;
 
     @media (max-width: 480px) {
-      padding: 4px;
+      padding: 6px;
     }
   }
 
