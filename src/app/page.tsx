@@ -29,6 +29,8 @@ const EventSlide = styled.div`
     margin: 8px;
     cursor: pointer;
   }
+
+
 `
 
 const Content = styled.div`
@@ -39,6 +41,13 @@ const Content = styled.div`
   bottom: 32px;
   border: 1px solid #FFE5BD;
   z-index: 3;
+  h1 {
+  margin-bottom:0px;
+}
+  h4 {
+    margin-top:0px;
+    margin-bottom: 32px;
+  }
 `
 
 
@@ -73,7 +82,8 @@ export default function Home() {
           videoPreviewUrl,
           private,
           rank, 
-          inviteUrl
+          inviteUrl,
+          eventDate
         }`
       )
       .then((data) => {
@@ -125,9 +135,17 @@ export default function Home() {
               zIndex: 10,
             }}
           >
-            <h1 style={{ fontSize: "6.5em", textAlign: "center" }}>
+            <h1 style={{ fontSize: "6.5em", lineHeight: "1em", textAlign: "center" }}>
               {events.length > 0 && ev?.title}
             </h1>
+            <h4>
+              {events.length > 0 &&
+                new Date(ev?.eventDate).toLocaleString("default", {
+                  month: "long",
+                  day: "numeric",
+                  year: "numeric",
+                })}
+            </h4>
             <div style={{ display: "flex", justifyContent: "center" }}>
               <Link href={ev?.videoTrailerUrl || ""} target="_blank">
                 <button
