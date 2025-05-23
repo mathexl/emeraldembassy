@@ -234,6 +234,7 @@ export default function Home() {
           autoPlay
           muted
           loop
+          webkit-playsinline playsInline
           style={{
             position: "absolute",
             top: 0,
