@@ -1,5 +1,8 @@
 "use client"
 
+/* eslint-disable  @typescript-eslint/no-explicit-any */
+
+
 import styled from "styled-components";
 import { useEffect, useState } from "react";
 import { createClient } from '@sanity/client'
