@@ -112,29 +112,33 @@ export default function Home() {
   const ev = (events[chosenEvent % events.length] as any);
 
   useEffect(() => {
+    let touchStartY: number | null = null;
+
     const handleTouchStart = (e: TouchEvent) => {
-      const touchStartY = e.touches[0].clientY;
-      const handleTouchMove = (ev: TouchEvent) => {
-        const touchEndY = ev.changedTouches[0].clientY;
-        const swipeDistance = touchStartY - touchEndY;
-        if (swipeDistance > 50) {
-          setChosenEvent((prev) => prev + 1);
-        } else if (swipeDistance < -50) {
-          setChosenEvent((prev) => Math.max(prev - 1, 0));
-        }
-      };
-      document.body.addEventListener("touchmove", handleTouchMove);
-      document.body.addEventListener(
-        "touchend",
-        () => {
-          document.body.removeEventListener("touchmove", handleTouchMove);
-        },
-        { once: true }
-      );
+      touchStartY = e.touches[0].clientY;
     };
+
+    const handleTouchEnd = (e: TouchEvent) => {
+      if (touchStartY === null) return;
+
+      const touchEndY = e.changedTouches[0].clientY;
+      const swipeDistance = touchStartY - touchEndY;
+
+      if (swipeDistance > 50) {
+        setChosenEvent((prev) => prev + 1);
+      } else if (swipeDistance < -50) {
+        setChosenEvent((prev) => Math.max(prev - 1, 0));
+      }
+
+      touchStartY = null;
+    };
+
     document.body.addEventListener("touchstart", handleTouchStart);
+    document.body.addEventListener("touchend", handleTouchEnd);
+
     return () => {
       document.body.removeEventListener("touchstart", handleTouchStart);
+      document.body.removeEventListener("touchend", handleTouchEnd);
     };
   }, []);
 
@@ -143,20 +147,6 @@ export default function Home() {
       <Head><meta property="og:image" content="./ogimage.png" />
       </Head>
       <EventSlide
-        onTouchStart={(e) => {
-          const touchStartY = e.touches[0].clientY;
-          const handleTouchMove = (ev: TouchEvent) => {
-            const touchEndY = ev.changedTouches[0].clientY;
-            const swipeDistance = touchStartY - touchEndY;
-            if (swipeDistance > 50) {
-              setChosenEvent((prev) => (prev + 1) % events.length);
-            } else if (swipeDistance < -50) {
-              setChosenEvent((prev) => (prev - 1 + events.length) % events.length);
-            }
-            window.removeEventListener('touchmove', handleTouchMove);
-          };
-          window.addEventListener('touchmove', handleTouchMove);
-        }}
         onKeyDown={(e) => {
           if (e.key === "Tab") {
             setChosenEvent((prev) => (prev + 1) % events.length);
