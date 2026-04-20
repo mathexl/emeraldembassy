@@ -9,20 +9,20 @@ const ibarraRealNova = Ibarra_Real_Nova({
 });
 
 export const metadata: Metadata = {
-  title: "The Emerald Embassy",
-  description: "The Emerald Embassy",
+  title: "SECRET HOME CAFE",
+  description: "SECRET HOME CAFE",
   openGraph: {
-    title: "The Emerald Embassy",
-    description: "The Emerald Embassy",
+    title: "SECRET HOME CAFE",
+    description: "SECRET HOME CAFE",
     url: "https://www.emeraldembassy.com",
     images: [
       {
         url: "https://www.emeraldembassy.com/ogimage.png",
-        alt: "The Emerald Embassy",
+        alt: "SECRET HOME CAFE",
       },
     ],
     type: "website",
-    siteName: "The Emerald Embassy",
+    siteName: "SECRET HOME CAFE",
   },
 }
 
