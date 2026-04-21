@@ -99,6 +99,12 @@ const Elapsed = styled.div`
   opacity: 0.7;
 `;
 
+const CustomerName = styled.div`
+  font-size: 14px;
+  font-weight: 500;
+  margin-top: 2px;
+`;
+
 const ItemList = styled.ul`
   list-style: none;
   margin: 0;
@@ -492,6 +498,9 @@ export default function OrdersPage() {
               <TicketHead>
                 <div>
                   <OrderNumber>#{o.orderNumber}</OrderNumber>
+                  {o.customerName && (
+                    <CustomerName>{o.customerName}</CustomerName>
+                  )}
                   <Elapsed>{elapsedSince(o.createdAt)}</Elapsed>
                 </div>
                 <Seating>{o.seating}</Seating>

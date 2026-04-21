@@ -9,6 +9,7 @@ export async function GET(req: NextRequest) {
     `*[_type == "order" && status == $status] | order(orderNumber desc){
       _id,
       orderNumber,
+      customerName,
       seating,
       status,
       createdAt,
@@ -37,6 +38,7 @@ type IncomingItem = {
 };
 
 type IncomingOrder = {
+  customerName?: string;
   seating: "Dining Room" | "Window Lounge" | "Bedroom";
   items: IncomingItem[];
 };
@@ -63,9 +65,11 @@ export async function POST(req: NextRequest) {
   );
   const orderNumber = (maxNumber ?? 0) + 1;
 
+  const customerName = (body.customerName ?? "").trim();
   const doc = {
     _type: "order",
     orderNumber,
+    ...(customerName ? { customerName } : {}),
     seating: body.seating,
     status: "active" as const,
     createdAt: new Date().toISOString(),

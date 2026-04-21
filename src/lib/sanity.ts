@@ -68,6 +68,7 @@ export type OrderItem = {
 export type Order = {
   _id: string;
   orderNumber: number;
+  customerName?: string;
   seating: "Dining Room" | "Window Lounge" | "Bedroom";
   items: OrderItem[];
   status: "active" | "dismissed";

@@ -217,6 +217,16 @@ const Textarea = styled.textarea`
   min-height: 70px;
 `;
 
+const NameInput = styled.input`
+  width: 100%;
+  border: 1px solid #005851;
+  border-radius: 10px;
+  background: #fff;
+  color: #005851;
+  padding: 10px 12px;
+  font: inherit;
+`;
+
 const PrimaryBtn = styled.button`
   background: #005851;
   color: #FFE5BB;
@@ -329,6 +339,7 @@ export default function MenuPage() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
   const [seating, setSeating] = useState<Seating | null>(null);
+  const [customerName, setCustomerName] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [confirmedNumber, setConfirmedNumber] = useState<number | null>(null);
 
@@ -446,6 +457,7 @@ export default function MenuPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           seating,
+          customerName: customerName.trim() || undefined,
           items: cart.map((i) => ({
             dishId: i.dishId,
             dishName: i.dishName,
@@ -462,6 +474,7 @@ export default function MenuPage() {
       setCart([]);
       setCartOpen(false);
       setSeating(null);
+      setCustomerName("");
     } catch (err) {
       alert("Something went wrong submitting the order. Please try again.");
       console.error(err);
@@ -497,6 +510,7 @@ export default function MenuPage() {
       <Inner>
         <Header>
           <Title>SECRET HOME CAFE</Title>
+          <Subtitle>Recommended: 2-3 dishes per person</Subtitle>
           <Subtitle>Tap a dish to order.</Subtitle>
         </Header>
 
@@ -656,6 +670,14 @@ export default function MenuPage() {
                 ))}
               </CartList>
             )}
+
+            <Label>Your name</Label>
+            <NameInput
+              value={customerName}
+              onChange={(e) => setCustomerName(e.target.value)}
+              placeholder="Name (optional)"
+              maxLength={60}
+            />
 
             <Label>Where are you seated?</Label>
             <SeatingRow>

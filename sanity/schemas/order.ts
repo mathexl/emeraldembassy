@@ -12,6 +12,11 @@ export default defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: "customerName",
+      title: "Customer Name",
+      type: "string",
+    }),
+    defineField({
       name: "seating",
       title: "Seating",
       type: "string",
