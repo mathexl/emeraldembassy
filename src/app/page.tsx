@@ -101,19 +101,33 @@ const ClosedTag = styled.span`
   text-transform: uppercase;
 `;
 
-const DishCard = styled.button`
+const DishCard = styled.button<{ $unavailable?: boolean }>`
   text-align: left;
   background: #FFE5BB;
   color: #005851;
   border: 1px solid #005851;
   border-radius: 14px;
   padding: 18px;
-  cursor: pointer;
+  cursor: ${(p) => (p.$unavailable ? "not-allowed" : "pointer")};
+  opacity: ${(p) => (p.$unavailable ? 0.45 : 1)};
   font: inherit;
   transition: transform 0.1s ease;
+  position: relative;
   &:hover {
-    transform: translateY(-2px);
+    transform: ${(p) => (p.$unavailable ? "none" : "translateY(-2px)")};
   }
+`;
+
+const UnavailableTag = styled.span`
+  display: inline-block;
+  background: #005851;
+  color: #FFE5BB;
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-top: 8px;
 `;
 
 const DishName = styled.div`
@@ -322,7 +336,7 @@ export default function MenuPage() {
     const loadAll = async () => {
       const [dishData, catRes] = await Promise.all([
         sanityRead.fetch<Dish[]>(
-          `*[_type == "dish" && available == true] | order(rank asc, name asc){
+          `*[_type == "dish"] | order(rank asc, name asc){
             _id, name, category, description, available, removableIngredients, rank,
             options[]{ label, choices }
           }`
@@ -335,10 +349,22 @@ export default function MenuPage() {
     };
     loadAll();
     const poll = setInterval(async () => {
-      const catRes = await fetch("/api/categories", {
-        cache: "no-store",
-      }).then((r) => r.json());
+      const [catRes, dishRes] = await Promise.all([
+        fetch("/api/categories", { cache: "no-store" }).then((r) => r.json()),
+        fetch("/api/dishes", { cache: "no-store" }).then((r) => r.json()),
+      ]);
       setCategorySettings(catRes.categories ?? []);
+      setDishes((prev) => {
+        const availMap = new Map<string, boolean>(
+          (dishRes.dishes ?? []).map((d: { _id: string; available: boolean }) => [
+            d._id,
+            d.available,
+          ])
+        );
+        return prev.map((d) =>
+          availMap.has(d._id) ? { ...d, available: availMap.get(d._id)! } : d
+        );
+      });
     }, 5000);
     return () => clearInterval(poll);
   }, []);
@@ -494,16 +520,24 @@ export default function MenuPage() {
                 </SectionMeta>
               </SectionHeader>
               <Grid>
-                {dishesByCategory.get(cat)!.map((d) => (
-                  <DishCard
-                    key={d._id}
-                    onClick={() => !disabled && openDish(d)}
-                    disabled={disabled}
-                  >
-                    <DishName>{d.name}</DishName>
-                    {d.description && <DishDesc>{d.description}</DishDesc>}
-                  </DishCard>
-                ))}
+                {dishesByCategory.get(cat)!.map((d) => {
+                  const unavailable = d.available === false;
+                  const cantOrder = disabled || unavailable;
+                  return (
+                    <DishCard
+                      key={d._id}
+                      onClick={() => !cantOrder && openDish(d)}
+                      disabled={cantOrder}
+                      $unavailable={unavailable}
+                    >
+                      <DishName>{d.name}</DishName>
+                      {d.description && <DishDesc>{d.description}</DishDesc>}
+                      {unavailable && !disabled && (
+                        <UnavailableTag>Not Available</UnavailableTag>
+                      )}
+                    </DishCard>
+                  );
+                })}
               </Grid>
             </Section>
           );

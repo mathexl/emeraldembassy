@@ -2,9 +2,16 @@
 
 import { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
-import { Order, CategorySetting, DISH_CATEGORIES } from "@/lib/sanity";
+import { Order, CategorySetting, DISH_CATEGORIES, DishCategory } from "@/lib/sanity";
 
 type Tab = "active" | "dismissed";
+
+type DishLite = {
+  _id: string;
+  name: string;
+  category: DishCategory;
+  available: boolean;
+};
 
 const Page = styled.div`
   min-height: 100vh;
@@ -194,6 +201,67 @@ const ToggleHours = styled.span`
   opacity: 0.8;
 `;
 
+const DishPanel = styled.div`
+  border: 1px solid #005851;
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 22px;
+  background: #ffffff;
+`;
+
+const DishPanelHeader = styled.button`
+  width: 100%;
+  background: transparent;
+  border: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font: inherit;
+  color: #005851;
+  cursor: pointer;
+  padding: 0;
+`;
+
+const DishPanelLabel = styled.div`
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  opacity: 0.7;
+`;
+
+const DishCategoryHeading = styled.div`
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  opacity: 0.6;
+  margin: 14px 0 6px;
+`;
+
+const DishChipRow = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+`;
+
+const DishChip = styled.button<{ $on: boolean }>`
+  border: 1px solid #005851;
+  background: ${(p) => (p.$on ? "#FFE5BB" : "#ffffff")};
+  color: #005851;
+  border-radius: 999px;
+  padding: 4px 11px;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: ${(p) => (p.$on ? "none" : "line-through")};
+  opacity: ${(p) => (p.$on ? 1 : 0.7)};
+  &:disabled {
+    cursor: wait;
+  }
+`;
+
 function elapsedSince(iso: string) {
   const then = new Date(iso).getTime();
   const mins = Math.max(0, Math.floor((Date.now() - then) / 60000));
@@ -210,15 +278,24 @@ export default function OrdersPage() {
   const [tab, setTab] = useState<Tab>("active");
   const [orders, setOrders] = useState<Order[]>([]);
   const [categories, setCategories] = useState<CategorySetting[]>([]);
+  const [dishes, setDishes] = useState<DishLite[]>([]);
+  const [dishPanelOpen, setDishPanelOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [busyCat, setBusyCat] = useState<string | null>(null);
+  const [busyDish, setBusyDish] = useState<string | null>(null);
   const [, setTick] = useState(0);
 
   const loadCategories = useCallback(async () => {
     const res = await fetch("/api/categories", { cache: "no-store" });
     const data = await res.json();
     setCategories(data.categories ?? []);
+  }, []);
+
+  const loadDishes = useCallback(async () => {
+    const res = await fetch("/api/dishes", { cache: "no-store" });
+    const data = await res.json();
+    setDishes(data.dishes ?? []);
   }, []);
 
   const loadOrders = useCallback(
@@ -245,9 +322,13 @@ export default function OrdersPage() {
 
   useEffect(() => {
     loadCategories();
-    const poll = setInterval(loadCategories, 8000);
+    loadDishes();
+    const poll = setInterval(() => {
+      loadCategories();
+      loadDishes();
+    }, 8000);
     return () => clearInterval(poll);
-  }, [loadCategories]);
+  }, [loadCategories, loadDishes]);
 
   useEffect(() => {
     const tick = setInterval(() => setTick((n) => n + 1), 30000);
@@ -287,9 +368,35 @@ export default function OrdersPage() {
     }
   }
 
+  async function toggleDish(d: DishLite) {
+    setBusyDish(d._id);
+    setDishes((prev) =>
+      prev.map((x) =>
+        x._id === d._id ? { ...x, available: !x.available } : x
+      )
+    );
+    try {
+      await fetch(`/api/dishes/${d._id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ available: !d.available }),
+      });
+      await loadDishes();
+    } finally {
+      setBusyDish(null);
+    }
+  }
+
   const orderedCategories = DISH_CATEGORIES.map((name) =>
     categories.find((c) => c.category === name)
   ).filter((c): c is CategorySetting => Boolean(c));
+
+  const dishesByCategory = DISH_CATEGORIES.map((cat) => ({
+    category: cat,
+    dishes: dishes.filter((d) => d.category === cat),
+  })).filter((g) => g.dishes.length > 0);
+
+  const unavailableCount = dishes.filter((d) => !d.available).length;
 
   return (
     <Page>
@@ -325,6 +432,49 @@ export default function OrdersPage() {
             </CategoryToggle>
           ))}
         </CategoryBar>
+      )}
+
+      {dishes.length > 0 && (
+        <DishPanel>
+          <DishPanelHeader
+            onClick={() => setDishPanelOpen((v) => !v)}
+            aria-expanded={dishPanelOpen}
+          >
+            <DishPanelLabel>
+              Dishes{" "}
+              {unavailableCount > 0 && (
+                <span style={{ opacity: 0.8, textTransform: "none", letterSpacing: 0 }}>
+                  — {unavailableCount} unavailable
+                </span>
+              )}
+            </DishPanelLabel>
+            <span style={{ fontSize: 18 }}>{dishPanelOpen ? "−" : "+"}</span>
+          </DishPanelHeader>
+
+          {dishPanelOpen &&
+            dishesByCategory.map((g) => (
+              <div key={g.category}>
+                <DishCategoryHeading>{g.category}</DishCategoryHeading>
+                <DishChipRow>
+                  {g.dishes.map((d) => (
+                    <DishChip
+                      key={d._id}
+                      $on={d.available}
+                      disabled={busyDish === d._id}
+                      onClick={() => toggleDish(d)}
+                      title={
+                        d.available
+                          ? "Click to mark Not Available"
+                          : "Click to mark Available"
+                      }
+                    >
+                      {d.name}
+                    </DishChip>
+                  ))}
+                </DishChipRow>
+              </div>
+            ))}
+        </DishPanel>
       )}
 
       {loading ? (
